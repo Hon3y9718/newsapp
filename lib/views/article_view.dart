@@ -14,6 +14,7 @@ class article_view extends StatefulWidget {
 }
 
 class _article_viewState extends State<article_view> {
+  bool _isLoading = true;
   final _key = UniqueKey();
   final Completer<WebViewController> _controller =
       Completer<WebViewController>();
@@ -52,18 +53,30 @@ class _article_viewState extends State<article_view> {
           )
         ],
       ),
-      body: Container(
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        child: WebView(
-          key: _key,
-          initialUrl: widget.blogUrl,
-          javascriptMode: JavascriptMode.unrestricted,
-          onWebViewCreated: (WebViewController webViewController) {
-            _controller.complete(webViewController);
-          },
+      body: Stack(children: [
+        Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          child: WebView(
+            key: _key,
+            initialUrl: widget.blogUrl,
+            javascriptMode: JavascriptMode.unrestricted,
+            onPageFinished: (finish) {
+              setState(() {
+                _isLoading = false;
+              });
+            },
+            onWebViewCreated: (WebViewController webViewController) {
+              _controller.complete(webViewController);
+            },
+          ),
         ),
-      ),
+        _isLoading
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : Stack(),
+      ]),
     );
   }
 }

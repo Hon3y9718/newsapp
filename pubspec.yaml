@@ -31,7 +31,11 @@ dependencies:
   http:
   cached_network_image: ^2.4.1
   webview_flutter: ^1.0.7
-  flutter_inappwebview: ^4.0.0+4
+  url_launcher:
+  speech_to_text: ^3.1.0
+  avatar_glow:
+  flutter_tts:
+  shared_preferences:
 
 dev_dependencies:
   flutter_test:

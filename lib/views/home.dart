@@ -1,52 +1,158 @@
+import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:avatar_glow/avatar_glow.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:newsapp/Helper/Data.dart';
 import 'package:newsapp/Helper/News.dart';
 import 'package:newsapp/models/CategoryModel.dart';
+import 'package:newsapp/models/MayaAPIModel.dart';
 import 'package:newsapp/models/articleModel.dart';
 import 'package:newsapp/views/article_view.dart';
 import 'package:newsapp/views/category_news.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:flutter_tts/flutter_tts.dart';
 
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
 }
 
+//variableGlobal
+stt.SpeechToText _speech;
+bool _isListening = false;
+String _text = '';
+final FlutterTts tts = FlutterTts();
+
 class _HomeState extends State<Home> {
   List<CategoryModel> categories = new List<CategoryModel>();
   List<ArticleModel> articles = new List<ArticleModel>();
+  String countryMaya = 'in';
+  String categoryMaya = 'general';
+
   bool _loading = true;
+
+  void _speak(String reply) async {
+    await tts.setLanguage("en-US");
+    await tts.setPitch(1);
+    await tts.speak(reply);
+  }
+
+  void _listen() async {
+    if (!_isListening) {
+      bool availble = await _speech.initialize(
+        onStatus: (val) {
+          print('onStatus: $val');
+          if (val != 'listening') {
+            setState(() {
+              _isListening = false;
+            });
+          }
+        },
+        onError: (val) {
+          print('onError: $val');
+          setState(() {
+            _isListening = false;
+          });
+        },
+      );
+      if (availble) {
+        setState(() {
+          _isListening = true;
+        });
+        _speech.listen(onResult: (val) {
+          setState(() async {
+            _text = val.recognizedWords;
+            print(_text);
+            await responseByMaya(_text);
+            _loading = true;
+            getMNews(countryMaya, categoryMaya);
+          });
+        });
+      } else {
+        setState(() {
+          _isListening = false;
+        });
+        _speech.stop();
+      }
+    }
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     categories = getCategoryModel();
     getNews();
+    _speech = stt.SpeechToText();
   }
 
   getNews() async {
     News newsClass = News();
-    await newsClass.getNews();
+    await newsClass.getNews(countryMaya, categoryMaya);
     articles = newsClass.news;
     setState(() {
       _loading = false;
     });
   }
 
+  getMNews(String country, String category) async {
+    MayaAskedNews newsClass = MayaAskedNews();
+    await newsClass.getMayaNews(country, category);
+    articles = newsClass.news;
+    setState(() {
+      _loading = false;
+    });
+  }
+
+  responseByMaya(String sentence) async {
+    GetMayaResponse resp = GetMayaResponse();
+    List mayaResp = await resp.getResponse(sentence);
+    countryMaya = mayaResp[0];
+    categoryMaya = mayaResp[1];
+    if (countryMaya == null) {
+      countryMaya = 'in';
+    } else if (countryMaya == 'call') {
+      countryMaya = 'in';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: AvatarGlow(
+        animate: _isListening,
+        glowColor: Colors.red,
+        endRadius: 35.0,
+        duration: const Duration(milliseconds: 2000),
+        repeatPauseDuration: const Duration(milliseconds: 100),
+        child: FloatingActionButton(
+          backgroundColor: Colors.red,
+          child: Icon(_isListening ? Icons.mic : Icons.mic_none),
+          onPressed: () {
+            _listen();
+          },
+        ),
+      ),
       appBar: AppBar(
         elevation: 0,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text("Techicious", style: TextStyle(color: Colors.blue)),
+            Text("Techicious",
+                style: TextStyle(
+                  color: Colors.blue,
+                )),
             Text(
               "News",
               style: TextStyle(color: Colors.red),
-            )
+            ),
+            Text(
+              countryMaya,
+              style: TextStyle(fontSize: 13),
+            ),
           ],
         ),
       ),
@@ -112,12 +218,15 @@ class CategoryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        _isListening = false;
         Navigator.push(
             context,
-            MaterialPageRoute(
-                builder: (context) => category_news(
-                      category: categoryName.toString().toLowerCase(),
-                    )));
+            PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    category_news(
+                      category: categoryName,
+                    ),
+                transitionDuration: Duration(seconds: 0)));
       },
       child: Container(
         margin: EdgeInsets.only(right: 10),
@@ -161,13 +270,16 @@ class BlogTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
+        _isListening = false;
         Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (BuildContext context) => article_view(
-                      blogUrl: url,
-                    )));
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => article_view(
+              blogUrl: url,
+            ),
+          ),
+        );
       },
       child: Container(
         margin: EdgeInsets.all(16),

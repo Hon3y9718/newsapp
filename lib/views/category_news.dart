@@ -4,7 +4,8 @@ import 'package:newsapp/Helper/Data.dart';
 import 'package:newsapp/Helper/News.dart';
 import 'package:newsapp/models/CategoryModel.dart';
 import 'package:newsapp/models/articleModel.dart';
-
+import 'package:newsapp/views/home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'article_view.dart';
 
 class category_news extends StatefulWidget {
@@ -42,15 +43,28 @@ class _category_newsState extends State<category_news> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 0,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text("Techicious", style: TextStyle(color: Colors.blue)),
-            Text(
-              "News",
-              style: TextStyle(color: Colors.red),
-            )
-          ],
+        title: GestureDetector(
+          onTap: () {
+            setState(() {
+              Navigator.pop(
+                  context,
+                  PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          Home(),
+                      transitionDuration: Duration(seconds: 0)));
+            });
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(widget.category.capitalize(),
+                  style: TextStyle(color: Colors.blue)),
+              Text(
+                "News",
+                style: TextStyle(color: Colors.red),
+              )
+            ],
+          ),
         ),
         actions: [
           Opacity(
@@ -127,10 +141,12 @@ class CategoryTile extends StatelessWidget {
       onTap: () {
         Navigator.push(
             context,
-            MaterialPageRoute(
-                builder: (context) => category_news(
-                      category: categoryName.toString().toLowerCase(),
-                    )));
+            PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    category_news(
+                      category: categoryName,
+                    ),
+                transitionDuration: Duration(seconds: 0)));
       },
       child: Container(
         margin: EdgeInsets.only(right: 10),
@@ -210,5 +226,12 @@ class BlogTile extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+//CapitalizeExtension
+extension StringExtension on String {
+  String capitalize() {
+    return "${this[0].toUpperCase()}${this.substring(1)}";
   }
 }
