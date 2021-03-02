@@ -17,27 +17,27 @@ You can find News from around the world from over 100 countries...
 - Read full articles in the app only. (No shifting to chrome or any other browser to read or watch full News)...
 - Consitent Design, No Clutter so you focus on News and not the ads and App. 
 
-## Here are some Screen Shots of the App
+# Here are some Screen Shots of the App
 
-# Home
+## Home
 ![Alt text](/SS/2.jpeg?raw=true "Home")
 
 
-# Country Drop Down
+## Country Drop Down
 ![Alt text](/SS/4.jpeg?raw=true "Country Drop Down")
 
 
-# Full Article View
+## Full Article View
 ![Alt text](/SS/7.jpeg?raw=true "Article View")
 
 
 
-# Science Category
+## Science Category
 ![Alt text](/SS/6.jpeg?raw=true "Category 1")
 
 
 
 
-# Technology Category
+## Technology Category
 ![Alt text](/SS/7.jpeg?raw=true "Category 2")
 
