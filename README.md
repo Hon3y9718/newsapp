@@ -11,4 +11,4 @@ You can find News from around the world from over 100 countries...
 
 ## Here are some Screen Shots of the App
 
-![Alt text](/SS/1.jpeg?raw=true "Optional Title")
+![Alt text](/SS/1.jpeg?raw=true "Home") ![Alt text](/SS/2.jpeg?raw=true "Home")
