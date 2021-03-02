@@ -13,7 +13,7 @@ You can find News from around the world from over 100 countries...
 
 - News from More than 100 Countries.
 - News categorized in 8 Categories.
-- Voice Enabled (Say "Show me News from India").
+- Voice Enabled (Say "Show me News from India" | "Business News from US").
 - Read full articles in the app only. (No shifting to chrome or any other browser to read or watch full News)...
 - Consitent Design, No Clutter so you focus on News and not the ads and App. 
 
