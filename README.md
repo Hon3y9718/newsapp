@@ -39,5 +39,5 @@ You can find News from around the world from over 100 countries...
 
 
 ## Technology Category
-![Alt text](/SS/7.jpeg?raw=true "Category 2")
+![Alt text](/SS/5.jpeg?raw=true "Category 2")
 
