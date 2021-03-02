@@ -2,7 +2,7 @@
 
 A new Flutter project. Named News App
 
-[Download Link](https://drive.google.com/file/d/1FzND04qf3AmyVksmhh6jVN9nsoTtkQKQ/view?usp=sharing
+###[Download Link](https://drive.google.com/file/d/1FzND04qf3AmyVksmhh6jVN9nsoTtkQKQ/view?usp=sharing
 )
 ## Getting Started
 
@@ -43,3 +43,6 @@ You can find News from around the world from over 100 countries...
 ## Technology Category
 ![Alt text](/SS/5.jpeg?raw=true "Category 2")
 
+
+###[Download Link](https://drive.google.com/file/d/1FzND04qf3AmyVksmhh6jVN9nsoTtkQKQ/view?usp=sharing
+)
