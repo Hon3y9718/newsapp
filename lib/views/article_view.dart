@@ -23,6 +23,7 @@ class _article_viewState extends State<article_view> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: true,
         elevation: 0,
         title: Column(children: [
           Row(
@@ -41,7 +42,13 @@ class _article_viewState extends State<article_view> {
               "Article",
               style: TextStyle(color: Colors.black, fontSize: 12),
             ),
-          )
+          ),
+          _isLoading
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 2.0, left: 115),
+                  child: SizedBox(width: 50, child: LinearProgressIndicator()),
+                )
+              : Container(height: 0, width: 0),
         ]),
         actions: [
           Opacity(

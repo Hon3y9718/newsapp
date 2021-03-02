@@ -1,20 +1,25 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:newsapp/models/MayaAPIModel.dart';
 import 'package:newsapp/models/articleModel.dart';
 import 'package:http/http.dart' as http;
 
 class News {
   List<ArticleModel> news = [];
-  Future<void> getNews(country, category) async {
+  Future<List> getNews(country, category) async {
+    var response;
     String url =
         'http://api-maya.herokuapp.com/news?country=$country&category=$category';
-
-    var response = await http.get(url);
-
+    print(url);
+    try {
+      response = await http.get(url);
+    } catch (e) {
+      print('Error in HTTP ' + e);
+    }
     var jsonData = jsonDecode(response.body);
-
-    if (jsonData['status'] == 'ok') {
+    var CNews = jsonData['country'];
+    var CaNews = jsonData['category'];
+    var listC = [CNews, CaNews];
+    if (jsonData['status'] == 'OK') {
       jsonData['articles'].forEach((element) {
         if (element['urlToImage'] != null && element['description'] != null) {
           ArticleModel articleModel = ArticleModel(
@@ -24,12 +29,13 @@ class News {
             urlToImage: element['urlToImage'],
             description: element['description'],
             content: element['content'],
+            source: element['source'],
           );
-
           news.add(articleModel);
         }
       });
     }
+    return listC;
   }
 }
 

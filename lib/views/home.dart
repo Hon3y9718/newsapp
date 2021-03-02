@@ -12,6 +12,7 @@ import 'package:newsapp/views/article_view.dart';
 import 'package:newsapp/views/category_news.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:country_icons/country_icons.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -29,8 +30,107 @@ class _HomeState extends State<Home> {
   List<ArticleModel> articles = new List<ArticleModel>();
   String countryMaya = 'in';
   String categoryMaya = 'general';
-
+  String Country;
   bool _loading = true;
+  var CNews = '';
+  var CaNews = '';
+  var list = {
+    'USA': 'us',
+    'India': 'in',
+    'Greece': 'gr',
+    'Argentina': 'ar',
+    'Hong Kong': 'hk',
+    'Australia': 'au',
+    'Austria': 'at',
+    'Belgium': 'be',
+    'Hungary': 'hu',
+    'Indonesia': 'id',
+    'Bulgaria': 'bg',
+    'Ireland': 'ie',
+    'Canada': 'ca',
+    'Israel': 'il',
+    'China': 'cn',
+    'Italy': 'it',
+    'Colombia': 'co',
+    'Japan': 'jp',
+    'Cuba': 'cu',
+    'Latvia': 'lv',
+    'Czech Republic': 'cz',
+    'Lithuania': 'lt',
+    'Egypt': 'eg',
+    'Malaysia': 'my',
+    'Mexico': 'mx',
+    'Germany': 'de',
+    'Morocco': 'ma',
+    'Slovenia': 'si',
+    'Slovakia': 'sk',
+    'Singapore': 'sg',
+    'Serbia': 'rs',
+    'Venuzuela': 've',
+    'Saudi Arabia': 'sa',
+    'United Kingdom': 'uk',
+    'Ukraine': 'ua',
+    'Russia': 'ru',
+    'Romania': 'ro',
+    'Portugal': 'pt',
+    'UAE': 'ae',
+    'Turkey': 'tr',
+    'Poland': 'pl',
+    'Thailand': 'th',
+    'Taiwan': 'tw',
+    'Philippines': 'ph',
+    'Norway': 'no',
+    'Switzerland': 'ch',
+    'Sweden': 'se',
+    'Nigeria': 'ng',
+    'New Zealand': 'nz',
+    'Netherland': 'nl',
+    'South Africa': 'za',
+    'South Korea': 'kr',
+  };
+
+  var _currentSelectedCountry = 'in';
+
+  getNewsonSelect() async {
+    var category = await getCategory();
+    News newsClass = News();
+    var CoNews = await newsClass.getNews(_currentSelectedCountry, category);
+    articles = newsClass.news;
+    setState(() {
+      _loading = false;
+      CNews = CoNews[0];
+      CaNews = CoNews[1];
+      _currentSelectedCountry = CNews;
+    });
+  }
+
+  //GetCountry
+  Future<String> getCountry() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var country = prefs.getString('country');
+    return country;
+  }
+
+  //SetCategory
+  Future setCountry(country) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('country', country);
+    var countryMaya = prefs.getString('country');
+    Country = await getCountry();
+  }
+
+  //GetCategory
+  Future<String> getCategory() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var category = prefs.getString('category');
+    return category;
+  }
+
+  //SetCategory
+  Future setCategory(category) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var categorytobeset = prefs.setString('category', category);
+  }
 
   void _speak(String reply) async {
     await tts.setLanguage("en-US");
@@ -66,7 +166,6 @@ class _HomeState extends State<Home> {
             print(_text);
             await responseByMaya(_text);
             _loading = true;
-            getMNews(countryMaya, categoryMaya);
           });
         });
       } else {
@@ -89,32 +188,27 @@ class _HomeState extends State<Home> {
 
   getNews() async {
     News newsClass = News();
-    await newsClass.getNews(countryMaya, categoryMaya);
+    var country = await getCountry();
+    print(country);
+    var category = await getCategory();
+    var CoNews = await newsClass.getNews(country, category);
     articles = newsClass.news;
     setState(() {
       _loading = false;
-    });
-  }
-
-  getMNews(String country, String category) async {
-    MayaAskedNews newsClass = MayaAskedNews();
-    await newsClass.getMayaNews(country, category);
-    articles = newsClass.news;
-    setState(() {
-      _loading = false;
+      CNews = CoNews[0];
+      CaNews = CoNews[1];
+      _currentSelectedCountry = CNews;
     });
   }
 
   responseByMaya(String sentence) async {
     GetMayaResponse resp = GetMayaResponse();
     List mayaResp = await resp.getResponse(sentence);
-    countryMaya = mayaResp[0];
-    categoryMaya = mayaResp[1];
-    if (countryMaya == null) {
-      countryMaya = 'in';
-    } else if (countryMaya == 'call') {
-      countryMaya = 'in';
-    }
+    var country = mayaResp[0];
+    var category = mayaResp[1];
+    setCountry(country);
+    setCategory(category);
+    getNews();
   }
 
   @override
@@ -133,28 +227,62 @@ class _HomeState extends State<Home> {
           child: Icon(_isListening ? Icons.mic : Icons.mic_none),
           onPressed: () {
             _listen();
+            _loading = true;
+            getNews();
           },
         ),
       ),
       appBar: AppBar(
         elevation: 0,
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            Text("Techicious",
+            Text("News",
                 style: TextStyle(
-                  color: Colors.blue,
+                  color: Colors.red,
                 )),
             Text(
-              "News",
-              style: TextStyle(color: Colors.red),
+              "Home",
+              style: TextStyle(color: Colors.blue),
             ),
             Text(
-              countryMaya,
+              CNews,
               style: TextStyle(fontSize: 13),
             ),
           ],
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(top: 5, right: 13),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton(
+                icon: Image.asset(
+                  'icons/flags/png/$_currentSelectedCountry.png',
+                  package: 'country_icons',
+                  height: 25,
+                  width: 25,
+                ),
+                items: list.entries.map((entry) {
+                  return DropdownMenuItem<String>(
+                    value: entry.key,
+                    child: Text(entry.key,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black54)),
+                  );
+                }).toList(),
+                onChanged: (String valueSelected) {
+                  setState(() {
+                    _currentSelectedCountry = list[valueSelected];
+                    _loading = true;
+                    setCountry(_currentSelectedCountry);
+                    getNewsonSelect();
+                  });
+                },
+              ),
+            ),
+          ),
+        ],
       ),
       body: _loading
           ? Center(
@@ -178,11 +306,24 @@ class _HomeState extends State<Home> {
                           return CategoryTile(
                             imageUrl: categories[index].imageUrl,
                             categoryName: categories[index].categoryName,
+                            countryName: CNews,
                           );
                         },
                       ),
                     ),
-
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(CaNews.capitalize(),
+                            style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold))
+                      ],
+                    ),
                     //Blogs
                     Container(
                       padding: EdgeInsets.only(top: 16),
@@ -198,8 +339,18 @@ class _HomeState extends State<Home> {
                                   imageUrl: articles[index].urlToImage,
                                   title: articles[index].title,
                                   description: articles[index].description,
-                                  url: articles[index].url));
+                                  url: articles[index].url,
+                                  source: articles[index].source));
                         },
+                      ),
+                    ),
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text(
+                          '© Techicious™ 2020',
+                          style: TextStyle(color: Colors.black),
+                        ),
                       ),
                     )
                   ],
@@ -210,21 +361,26 @@ class _HomeState extends State<Home> {
   }
 }
 
-class CategoryTile extends StatelessWidget {
-  final imageUrl, categoryName;
-  CategoryTile({this.imageUrl, this.categoryName});
+class CategoryTile extends StatefulWidget {
+  final imageUrl, categoryName, countryName;
+  CategoryTile({this.imageUrl, this.categoryName, this.countryName});
 
+  @override
+  _CategoryTileState createState() => _CategoryTileState();
+}
+
+class _CategoryTileState extends State<CategoryTile> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        _isListening = false;
+      onTap: () async {
         Navigator.push(
             context,
             PageRouteBuilder(
                 pageBuilder: (context, animation, secondaryAnimation) =>
                     category_news(
-                      category: categoryName,
+                      category: widget.categoryName,
+                      country: widget.countryName,
                     ),
                 transitionDuration: Duration(seconds: 0)));
       },
@@ -235,7 +391,7 @@ class CategoryTile extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(6),
               child: CachedNetworkImage(
-                imageUrl: imageUrl,
+                imageUrl: widget.imageUrl,
                 width: 120,
                 height: 60,
                 fit: BoxFit.cover,
@@ -250,7 +406,7 @@ class CategoryTile extends StatelessWidget {
                 color: Colors.black26,
               ),
               child: Text(
-                categoryName,
+                widget.categoryName,
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: 14,
@@ -265,8 +421,13 @@ class CategoryTile extends StatelessWidget {
 }
 
 class BlogTile extends StatelessWidget {
-  final String imageUrl, title, description, url;
-  BlogTile({this.imageUrl, this.title, @required this.url, this.description});
+  final String imageUrl, title, description, url, source;
+  BlogTile(
+      {this.imageUrl,
+      this.title,
+      @required this.url,
+      this.description,
+      this.source});
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -291,7 +452,7 @@ class BlogTile extends StatelessWidget {
                   imageUrl: imageUrl,
                   placeholder: (context, url) =>
                       new CircularProgressIndicator(),
-                  errorWidget: (context, url, error) => new Icon(Icons.error),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
                 )),
             SizedBox(
               height: 8,
@@ -305,6 +466,15 @@ class BlogTile extends StatelessWidget {
               height: 8,
             ),
             Text(description, style: TextStyle(color: Colors.black54)),
+            SizedBox(height: 5),
+            Row(
+              children: [
+                Text(
+                  source,
+                  style: TextStyle(color: Colors.blue),
+                )
+              ],
+            )
           ],
         ),
       ),
